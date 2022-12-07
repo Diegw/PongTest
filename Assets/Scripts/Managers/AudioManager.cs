@@ -1,11 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour, IManager
 {
+    private AudioSettings _settings = null;
+    
     public void Construct()
     {
+        _settings = SettingsManager.GetSettings<AudioSettings>();
     }
 
     public void Activate()

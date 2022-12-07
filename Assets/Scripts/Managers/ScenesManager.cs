@@ -1,11 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ScenesManager : MonoBehaviour, IManager
 {
+    private ScenesSettings _settings = null;
+    
     public void Construct()
     {
+        _settings = SettingsManager.GetSettings<ScenesSettings>();
     }
 
     public void Activate()
