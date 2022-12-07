@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ExecutionManager : MonoBehaviour
 {
-    [SerializeField] private IManager[] _managers = null;
+    private IManager[] _managers = null;
 
     private void Awake()
     {
