@@ -1,64 +1,59 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class InputReceiver : MonoBehaviour
 {
-    public static event Action<Vector2> OnNavigationInputEvent; 
-    public static event Action OnSubmitInputEvent; 
-    public static event Action OnCancelInputEvent; 
+    public static event Action<Vector2> OnMoveInputEvent;
 
+    [SerializeField] private bool _inputEnabled = true;
     [SerializeField] private PlayerInput _playerInput = null;
+    private InputAction _moveAction = null;
 
-    private void OnEnable()
+    private void Awake()
     {
-        SubscribePerformedAction("Navigate", OnNavigateAction);
-        SubscribePerformedAction("Submit", OnSubmitAction);
-        SubscribePerformedAction("Cancel", OnCancelAction);
+        StartCoroutine(CheckMoveInputCoroutine());
     }
 
-    private void OnDisable()
+    private IEnumerator CheckMoveInputCoroutine()
     {
-        UnsubscribePerformedAction("Navigate", OnNavigateAction);
-        UnsubscribePerformedAction("Submit", OnSubmitAction);
-        UnsubscribePerformedAction("Cancel", OnCancelAction);
-    }
-
-    private void SubscribePerformedAction(string actionName, Action<InputAction.CallbackContext> actionMethod)
-    {
-        InputAction action = _playerInput.actions.FindAction(actionName);
-        if (action != null)
+        if (!_playerInput)
         {
-            action.performed += actionMethod;
+            yield break;
+        }
+        _moveAction = _playerInput.currentActionMap.FindAction("Move");
+        _moveAction.performed += MoveActionOnperformed;
+        _playerInput.ActivateInput();
+        WaitForEndOfFrame frame = new WaitForEndOfFrame();
+        while (_inputEnabled)
+        {
+            CheckMoveInput();
+            yield return frame;
         }
     }
 
-    private void UnsubscribePerformedAction(string actionName, Action<InputAction.CallbackContext> actionMethod)
+    private void MoveActionOnperformed(InputAction.CallbackContext obj)
     {
-        InputAction action = _playerInput.actions.FindAction(actionName);
-        if (action != null)
-        {
-            action.performed -= actionMethod;
-        }
-    }
-    
-    private void OnNavigateAction(InputAction.CallbackContext obj)
-    {
-        Vector2 navigationDirection = obj.ReadValue<Vector2>();
-        if (navigationDirection == Vector2.zero)
+        if (obj.ReadValue<Vector2>() == Vector2.zero)
         {
             return;
         }
-        OnNavigationInputEvent?.Invoke(navigationDirection);
+
+        // Debug.Log(obj.ReadValue<Vector2>());
     }
 
-    private void OnSubmitAction(InputAction.CallbackContext obj)
+    private void CheckMoveInput()
     {
-        OnSubmitInputEvent?.Invoke();
-    }
+        Vector2 move = Vector2.zero;
+        if (_moveAction != null)
+        {
+            move = _moveAction.ReadValue<Vector2>();
+        }
 
-    private void OnCancelAction(InputAction.CallbackContext obj)
-    {
-        OnCancelInputEvent?.Invoke();
+        if (move != Vector2.zero)
+        {
+            OnMoveInputEvent?.Invoke(move);
+        }
     }
 }

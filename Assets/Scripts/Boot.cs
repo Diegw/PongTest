@@ -1,5 +1,5 @@
-using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 public static class Boot
@@ -12,6 +12,7 @@ public static class Boot
     {
         InitializeSettings();
         InitializeExecution();
+        // SceneManager.LoadScene(0);
     }
 
     private static void InitializeSettings()

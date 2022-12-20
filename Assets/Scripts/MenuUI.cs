@@ -25,13 +25,14 @@ public class MenuUI : MonoBehaviour
 
     private IEnumerator CheckButtonSelected()
     {
-        WaitForSeconds waitForSeconds = new WaitForSeconds(1.0f);
+        StartCoroutine(SetButtonSelected());
+        WaitForSeconds waitForSeconds = new WaitForSeconds(0.5f);
         while (true)
         {
             yield return waitForSeconds;
             if (!EventSystem.current.currentSelectedGameObject)
             {
-                SetButtonSelected();
+                StartCoroutine(SetButtonSelected());
             }
         }
     }
@@ -69,11 +70,13 @@ public class MenuUI : MonoBehaviour
     private void PlayButton()
     {
         OnPlayButtonEvent?.Invoke();
+        StartCoroutine(SetButtonSelected());
     }
 
     private void DifficultyButton()
     {
         ToggleUI();
+        StartCoroutine(SetButtonSelected());
     }
 
     private void ExitButton()
@@ -94,8 +97,14 @@ public class MenuUI : MonoBehaviour
         }
     }
 
-    private void SetButtonSelected()
+    private IEnumerator SetButtonSelected()
     {
+        if (!EventSystem.current)
+        {
+            yield break;
+        }
+        EventSystem.current.SetSelectedGameObject(null);
+        yield return null;
         if (_principalUI && _principalUI.activeSelf)
         {
             EventSystem.current.SetSelectedGameObject(_playButton.gameObject);
@@ -111,5 +120,7 @@ public class MenuUI : MonoBehaviour
         EDifficulty difficulty = (EDifficulty)difficultyIndex;
         OnDifficultyChangedEvent?.Invoke(difficulty);
         DifficultyButton();
+        StartCoroutine(SetButtonSelected());
+
     }
 }

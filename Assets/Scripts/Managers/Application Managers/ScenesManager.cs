@@ -14,6 +14,7 @@ public class ScenesManager : MonoBehaviour, IManager
     {
         ExecutionManager.OnContinueEvent += NextScene;
         Title.OnContinueEvent += NextScene;
+        Menu.OnContinueEvent += NextScene;
     }
 
     public void Initialize()
@@ -24,6 +25,7 @@ public class ScenesManager : MonoBehaviour, IManager
     {
         ExecutionManager.OnContinueEvent -= NextScene;
         Title.OnContinueEvent -= NextScene;
+        Menu.OnContinueEvent -= NextScene;
     }
 
     public void Terminate()
