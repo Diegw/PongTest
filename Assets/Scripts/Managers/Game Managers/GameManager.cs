@@ -9,8 +9,8 @@ public class GameManager : MonoBehaviour, IManager
     {
         PREPARING = 0,
         STARTED = 1,
-        ENDING = 2,
-        FINISHED = 3,
+        FINISHED = 2,
+        ENDING = 3,
     }
 
     [SerializeField] private EGameState _gameState = EGameState.PREPARING;
@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour, IManager
 
     public void Activate()
     {
+        RoundManager.OnFinishEvent += CheckEndMatch;
     }
 
     public void Initialize()
@@ -30,6 +31,16 @@ public class GameManager : MonoBehaviour, IManager
 
     public void Deactivate()
     {
+        RoundManager.OnFinishEvent -= CheckEndMatch;
+    }
+
+    private void CheckEndMatch(RoundManager.SRoundInfo roundInfo)
+    {
+        if (!roundInfo.HasRoundsFinished)
+        {
+            return;
+        }
+        SetGameState(EGameState.FINISHED);
     }
 
     public void Terminate()

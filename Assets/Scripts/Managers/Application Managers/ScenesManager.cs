@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class ScenesManager : MonoBehaviour, IManager
 {
     private ScenesSettings _settings = null;
-    
+
     public void Construct()
     {
         _settings = SettingsManager.GetSettings<ScenesSettings>();
@@ -15,6 +15,7 @@ public class ScenesManager : MonoBehaviour, IManager
         ExecutionManager.OnContinueEvent += NextScene;
         Title.OnContinueEvent += NextScene;
         Menu.OnContinueEvent += NextScene;
+        GameplayUI.OnButtonPressedEvent += GoToScene;
     }
 
     public void Initialize()
@@ -26,6 +27,12 @@ public class ScenesManager : MonoBehaviour, IManager
         ExecutionManager.OnContinueEvent -= NextScene;
         Title.OnContinueEvent -= NextScene;
         Menu.OnContinueEvent -= NextScene;
+        GameplayUI.OnButtonPressedEvent -= GoToScene;
+    }
+
+    private void GoToScene(int newSceneIndex)
+    {
+        LoadScene(newSceneIndex);
     }
 
     public void Terminate()
@@ -44,6 +51,16 @@ public class ScenesManager : MonoBehaviour, IManager
         {
             return;
         } 
+        LoadScene(nextSceneName);
+    }
+
+    private static void LoadScene(string nextSceneName)
+    {
         SceneManager.LoadScene(nextSceneName);
+    }
+    
+    private static void LoadScene(int nextSceneIndex)
+    {
+        SceneManager.LoadScene(nextSceneIndex);
     }
 }

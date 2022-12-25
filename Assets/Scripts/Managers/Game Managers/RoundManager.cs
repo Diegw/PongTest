@@ -1,11 +1,12 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class RoundManager : MonoBehaviour ,IManager, IRicochet
 {
-    public static event Action<SRoundInfo> OnRoundsFinishedEvent;
+    public static event Action<SRoundInfo> OnFinishEvent;
+    public static event Action OnStartEvent;
 
     public enum ETeam
     {
@@ -16,16 +17,18 @@ public class RoundManager : MonoBehaviour ,IManager, IRicochet
 
     public struct SRoundInfo
     {
-        public SRoundInfo(bool finished, ETeam team, int rounds)
+        public SRoundInfo(bool finished, ETeam team, int rounds, float delay = 0)
         {
             HasRoundsFinished = finished;
             Team = team;
             Rounds = rounds;
+            Delay = delay;
         }
 
         public bool HasRoundsFinished { get; }
         public ETeam Team { get; }
         public int Rounds { get; }
+        public float Delay { get; }
     }
     
     [SerializeField] private int _currentRound = 0;
@@ -65,14 +68,6 @@ public class RoundManager : MonoBehaviour ,IManager, IRicochet
         NextRound();
     }
 
-    private void NextRound(ETeam team = ETeam.NONE)
-    {
-        _currentRound++;
-        int rounds = _roundsWon.ContainsKey(team) ? _roundsWon[team] : 0;
-        SRoundInfo roundInfo = new SRoundInfo(_currentRound > _settings.MaxRounds, team, rounds);
-        OnRoundsFinishedEvent?.Invoke(roundInfo);
-    }
-
     private void OnTriggerExit2D(Collider2D other)
     {
         PongBall ball = other.GetComponent<PongBall>();
@@ -97,8 +92,41 @@ public class RoundManager : MonoBehaviour ,IManager, IRicochet
                 _roundsWon[team]++;
             }
         }
-
         return team;
+    }
+
+    private void NextRound(ETeam team = ETeam.NONE)
+    {
+        _currentRound++;
+        int rounds = _roundsWon.ContainsKey(team) ? _roundsWon[team] : 0;
+        float delay = _settings == null ? 0 : _settings.RoundDelay;
+        SRoundInfo roundInfo = new SRoundInfo(HasFinish(), team, rounds, delay);
+        OnFinishEvent?.Invoke(roundInfo);
+        StartCoroutine(NextRoundDelay(delay));
+    }
+
+    private IEnumerator NextRoundDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        OnStartEvent?.Invoke();
+    }
+
+    private bool HasFinish()
+    {
+        bool hasFinish = false;
+        hasFinish = _currentRound > _settings.MaxRounds;
+        if (!hasFinish)
+        {
+            foreach (int rounds in _roundsWon.Values)
+            {
+                if (rounds >= _settings.RoundsToWin)
+                {
+                    hasFinish = true;
+                    break;
+                }
+            }
+        }
+        return hasFinish;
     }
 
     public bool CanRicochet()

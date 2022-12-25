@@ -7,7 +7,8 @@ public class PongBall : MonoBehaviour
     [SerializeField] private Vector2 _currentVelocity = Vector2.zero; 
     private Rigidbody2D _rigidbody = null;
     private BallSettings _settings = null;
-    
+    private bool _canMove = true;
+
     private void Awake()
     {
         _settings = SettingsManager.GetSettings<BallSettings>();
@@ -16,33 +17,42 @@ public class PongBall : MonoBehaviour
             transform.localScale = _settings.Size;
         }
         _rigidbody = GetComponentInChildren<Rigidbody2D>();
-        StartCoroutine(InitialImpulse());
     }
 
     private void OnEnable()
     {
-        RoundManager.OnRoundsFinishedEvent += OnNextRound;
+        RoundManager.OnFinishEvent += OnEndRound;
+        RoundManager.OnStartEvent += OnStartRound;
     }
 
     private void OnDisable()
     {
-        RoundManager.OnRoundsFinishedEvent -= OnNextRound;
+        RoundManager.OnFinishEvent -= OnEndRound;
+        RoundManager.OnStartEvent -= OnStartRound;
     }
-
-    private void OnNextRound(RoundManager.SRoundInfo roundInfo)
+    
+    private void OnEndRound(RoundManager.SRoundInfo roundInfo)
     {
         Reset();
         if (roundInfo.HasRoundsFinished)
         {
-            return;
+            _canMove = false;
         }
-        StartCoroutine(InitialImpulse());
     }
 
     private void Reset()
     {
         SetVelocity(Vector2.zero);
         transform.position = Vector2.zero;
+    }
+
+    private void OnStartRound()
+    {
+        if (!_canMove)
+        {
+            return;
+        }
+        StartCoroutine(InitialImpulse());
     }
     
     private IEnumerator InitialImpulse()
@@ -53,11 +63,6 @@ public class PongBall : MonoBehaviour
             yield break;
         }
 
-        if (_settings)
-        {
-            yield return new WaitForSeconds(_settings.InitialDelay);
-        }
-        
         float speed = 1.0f;
         if (_settings)
         {

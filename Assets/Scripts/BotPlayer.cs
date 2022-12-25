@@ -24,14 +24,21 @@ public class BotPlayer : MonoBehaviour
 
     private void OnGameStateChanged(GameManager.EGameState gameState)
     {
-        if (gameState != GameManager.EGameState.STARTED)
+        switch (gameState)
         {
-            return;
-        }
-
-        if (_settings && !_settings.DisableBot)
-        {
-            StartCoroutine(InitializeBot());
+            case GameManager.EGameState.STARTED:
+            {
+                if (_settings && !_settings.DisableBot)
+                {
+                    StartCoroutine(InitializeBot());
+                }
+                break;
+            }
+            case GameManager.EGameState.FINISHED:
+            {
+                StopCoroutine(InitializeBot());
+                break;
+            }
         }
     }
 
