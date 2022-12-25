@@ -1,5 +1,4 @@
 using System.Collections;
-using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -108,7 +107,7 @@ public class PongPlayer : MonoBehaviour, IRicochet
             float deltaY = mousePosition.y - _thisTransform.position.y;
             if (deltaY != 0)
             {
-                deltaY = deltaY > 1 ? Mathf.Sign(deltaY) : deltaY;
+                deltaY = Mathf.Abs(deltaY) > 1 ? Mathf.Sign(deltaY) : deltaY;
                 Vector2 direction = new Vector2(0, deltaY);
                 TryToMove(direction);
             }
