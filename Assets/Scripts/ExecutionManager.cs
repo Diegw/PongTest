@@ -1,7 +1,10 @@
+using System;
 using UnityEngine;
 
 public class ExecutionManager : MonoBehaviour
 {
+    public static event Action OnContinueEvent;
+    
     private IManager[] _managers = null;
 
     private void Awake()
@@ -23,6 +26,7 @@ public class ExecutionManager : MonoBehaviour
     private void Start()
     {
         InitializeManagers();
+        OnContinueEvent?.Invoke();
     }
 
     private void OnDisable()
