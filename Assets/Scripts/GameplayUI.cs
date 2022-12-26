@@ -53,12 +53,6 @@ public class GameplayUI : MonoBehaviour
         }
     }
 
-    private void Resume()
-    {
-        AudioManager.PlayAudio(0);
-        SetEndScreen(false);
-    }
-
     private void Restart()
     {
         AudioManager.PlayAudio(0);
