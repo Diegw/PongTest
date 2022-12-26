@@ -65,6 +65,7 @@ public class Title : MonoBehaviour
     
     private void ContinueEvent()
     {
+        AudioManager.PlayAudio(0);
         OnContinueEvent?.Invoke();
     }
 }

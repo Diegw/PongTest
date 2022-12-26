@@ -98,6 +98,7 @@ public class PongBall : MonoBehaviour
         IRicochet ricochet = collision.gameObject.GetComponent<IRicochet>();
         if (ricochet != null && ricochet.CanRicochet())
         {
+            AudioManager.PlayAudio(1);
             Vector2 normal = collision.GetContact(0).normal;
             Ricochet(normal);
         }
