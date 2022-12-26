@@ -25,6 +25,7 @@ public class Menu : MonoBehaviour
         {
             _menuUI.OnPlayButtonEvent += Continue;
             _menuUI.OnExitButtonEvent += Exit;
+            _menuUI.OnDifficultyChangedEvent += ChangeDifficulty;
         }
     }
 
@@ -34,6 +35,7 @@ public class Menu : MonoBehaviour
         {
             _menuUI.OnPlayButtonEvent -= Continue;
             _menuUI.OnExitButtonEvent -= Exit;
+            _menuUI.OnDifficultyChangedEvent -= ChangeDifficulty;
         }
     }
 
@@ -45,5 +47,14 @@ public class Menu : MonoBehaviour
     private void Exit()
     {
         Application.Quit();
+    }
+
+    private void ChangeDifficulty(DifficultySettings.EDifficulty difficulty)
+    {
+        DifficultySettings difficultySettings = SettingsManager.GetSettings<DifficultySettings>();
+        if (difficultySettings)
+        {
+            difficultySettings.SetDifficulty(difficulty);   
+        }
     }
 }

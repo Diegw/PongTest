@@ -59,6 +59,7 @@ public class PongPlayer : MonoBehaviour, IRicochet
         {
             UnsubscribeEvents();
         }
+        StopCoroutine(ClickCoroutine());
     }
 
     public void SetLocalPlayer(bool newState)
