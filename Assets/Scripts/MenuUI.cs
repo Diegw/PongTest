@@ -69,18 +69,21 @@ public class MenuUI : MonoBehaviour
 
     private void PlayButton()
     {
+        AudioManager.PlayAudio(0);
         OnPlayButtonEvent?.Invoke();
         StartCoroutine(SetButtonSelected());
     }
 
     private void DifficultyButton()
     {
+        AudioManager.PlayAudio(0);
         ToggleUI();
         StartCoroutine(SetButtonSelected());
     }
 
     private void ExitButton()
     {
+        AudioManager.PlayAudio(0);
         OnExitButtonEvent?.Invoke();
     }
 

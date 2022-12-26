@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class GameplayUI : MonoBehaviour
 {
@@ -14,7 +15,6 @@ public class GameplayUI : MonoBehaviour
     [SerializeField] private TMP_Text _teamOneDisplay = null;
     [SerializeField] private TMP_Text _teamTwoDisplay = null;
     [SerializeField] private GameObject _endScreen = null;
-    [SerializeField] private Button _resumeButton = null;
     [SerializeField] private Button _restartButton = null;
     [SerializeField] private Button _menuButton = null;
 
@@ -25,7 +25,6 @@ public class GameplayUI : MonoBehaviour
 
     private void OnEnable()
     {
-        SubscribeButton(_resumeButton, Resume);
         SubscribeButton(_restartButton, Restart);
         SubscribeButton(_menuButton, Menu);
         RoundManager.OnFinishEvent += OnRoundEnd;
@@ -33,7 +32,6 @@ public class GameplayUI : MonoBehaviour
 
     private void OnDisable()
     {
-        UnsubscribeButton(_resumeButton, Resume);
         UnsubscribeButton(_restartButton, Restart);
         UnsubscribeButton(_menuButton, Menu);
         RoundManager.OnFinishEvent -= OnRoundEnd;
@@ -57,16 +55,19 @@ public class GameplayUI : MonoBehaviour
 
     private void Resume()
     {
+        AudioManager.PlayAudio(0);
         SetEndScreen(false);
     }
 
     private void Restart()
     {
+        AudioManager.PlayAudio(0);
         OnButtonPressedEvent?.Invoke(GetSceneBuildIndex(ScenesSettings.EScene.GAMEPLAY));
     }
 
     private void Menu()
     {
+        AudioManager.PlayAudio(0);
         OnButtonPressedEvent?.Invoke(GetSceneBuildIndex(ScenesSettings.EScene.MENU));
     }
 
@@ -95,7 +96,7 @@ public class GameplayUI : MonoBehaviour
         }
         SetEndScreen(roundInfo.HasRoundsFinished);
     }
-
+    
     private IEnumerator StartCountdown(float time)
     {
         if (!_roundDisplay)
@@ -122,10 +123,22 @@ public class GameplayUI : MonoBehaviour
 
     private void SetEndScreen(bool hasFinish)
     {
+        StartCoroutine(SetButtonSelected(hasFinish));
         if (!_endScreen || _endScreen.activeSelf == hasFinish)
         {
             return;
         }
         _endScreen.SetActive(hasFinish);
+    }
+
+    private IEnumerator SetButtonSelected(bool hasRoundsFinished)
+    {
+        if (!EventSystem.current)
+        {
+            yield break;
+        }
+        EventSystem.current.SetSelectedGameObject(null);
+        yield return null;
+        EventSystem.current.SetSelectedGameObject(_restartButton.gameObject);
     }
 }

@@ -100,14 +100,38 @@ public class RoundManager : MonoBehaviour ,IManager, IRicochet
         _currentRound++;
         int rounds = _roundsWon.ContainsKey(team) ? _roundsWon[team] : 0;
         float delay = _settings == null ? 0 : _settings.RoundDelay;
-        SRoundInfo roundInfo = new SRoundInfo(HasFinish(), team, rounds, delay);
+        bool hasFinish = HasFinish();
+        SRoundInfo roundInfo = new SRoundInfo(hasFinish, team, rounds, delay);
+        if (hasFinish)
+        {
+            int audioIndex = 2;
+            if (GetWinnerTeam() == ETeam.ONE)
+            {
+                audioIndex = 3;
+            }
+            AudioManager.PlayAudio(audioIndex);
+        }
         OnFinishEvent?.Invoke(roundInfo);
         StartCoroutine(NextRoundDelay(delay));
     }
 
+    private ETeam GetWinnerTeam()
+    {
+        int roundsWon = 0;
+        ETeam team = ETeam.NONE;
+        foreach (KeyValuePair<ETeam,int> round in _roundsWon)
+        {
+            if (round.Value > roundsWon)
+            {
+                team = round.Key;
+            }
+        }
+        return team;
+    }
+
     private IEnumerator NextRoundDelay(float delay)
     {
-        yield return new WaitForSeconds(delay);
+        yield return new WaitForSeconds(delay + 1f);
         OnStartEvent?.Invoke();
     }
 

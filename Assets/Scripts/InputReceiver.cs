@@ -15,7 +15,6 @@ public class InputReceiver : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Log("awake");
         if (!_playerInput)
         {
             _playerInput = GetComponentInChildren<PlayerInput>();
