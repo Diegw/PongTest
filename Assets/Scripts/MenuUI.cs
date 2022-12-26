@@ -9,7 +9,7 @@ public class MenuUI : MonoBehaviour
 {
     public event Action OnPlayButtonEvent;
     public event Action OnExitButtonEvent;
-    public event Action<EDifficulty> OnDifficultyChangedEvent;
+    public event Action<DifficultySettings.EDifficulty> OnDifficultyChangedEvent;
     
     [SerializeField] private Button _playButton;
     [SerializeField] private Button _difficultyButton;
@@ -120,7 +120,7 @@ public class MenuUI : MonoBehaviour
 
     public void Difficulty(int difficultyIndex)
     {
-        EDifficulty difficulty = (EDifficulty)difficultyIndex;
+        DifficultySettings.EDifficulty difficulty = (DifficultySettings.EDifficulty)difficultyIndex;
         OnDifficultyChangedEvent?.Invoke(difficulty);
         DifficultyButton();
         StartCoroutine(SetButtonSelected());

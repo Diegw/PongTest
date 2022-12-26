@@ -6,10 +6,15 @@ public class BotPlayer : MonoBehaviour
     [SerializeField] private float _speed = 1.0f;
     private PongBall _ball = null;
     private BotSettings _settings = null;
+    private BotSettings.SBotData _data;
 
     private void Awake()
     {
         _settings = SettingsManager.GetSettings<BotSettings>();
+        if (_settings)
+        {
+            _data = _settings.GetBotData();
+        }
     }
 
     private void OnEnable()
@@ -49,12 +54,12 @@ public class BotPlayer : MonoBehaviour
         {
             yield break;
         }
-
+        
         WaitForEndOfFrame frame = new WaitForEndOfFrame();
+        _speed = _settings ? _data.MovementSpeed : 1.0f;
+        _speed *= Time.deltaTime;
         while (_ball)
         {
-            _speed = _settings ? _settings.MovementSpeed : 1.0f;
-            _speed *= Time.deltaTime;
             float velocityY = _ball.transform.position.y - transform.position.y;
             velocityY = Mathf.Clamp(Mathf.Abs(velocityY), 0, _speed) * Mathf.Sign(velocityY);
             if (velocityY != 0)
@@ -74,7 +79,7 @@ public class BotPlayer : MonoBehaviour
             float limitY = thisTransform.position.y;
             if (_settings)
             {
-                limitY = translation.y > 0 ? _settings.MovementLimits.y : _settings.MovementLimits.x;
+                limitY = translation.y > 0 ? _data.MovementLimits.y : _data.MovementLimits.x;
             }
             Vector3 newPosition = new Vector3(thisTransform.position.x, limitY, 0);
             thisTransform.position = newPosition;
@@ -87,11 +92,11 @@ public class BotPlayer : MonoBehaviour
 
     private bool HasReachLimit(float directionY)
     {
-        if (directionY > 0 && transform.position.y + directionY <= _settings.MovementLimits.y)
+        if (directionY > 0 && transform.position.y + directionY <= _data.MovementLimits.y)
         {
             return false;
         }
-        if (directionY < 0 && transform.position.y + directionY >= _settings.MovementLimits.x)
+        if (directionY < 0 && transform.position.y + directionY >= _data.MovementLimits.x)
         {
             return false;
         }
