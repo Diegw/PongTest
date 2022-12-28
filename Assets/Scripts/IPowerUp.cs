@@ -1,4 +1,4 @@
 public interface IPowerUp
 {
-    void Trigger();
+    void Trigger(PowerUpSettings settings, PongBall ball);
 }

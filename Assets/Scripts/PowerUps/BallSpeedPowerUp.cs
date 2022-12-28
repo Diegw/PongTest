@@ -1,9 +1,11 @@
-using System;using UnityEngine;
+using System;
+using UnityEngine;
 
-[Serializable] public class BallSpeedPowerUp : Component, IPowerUp
+[Serializable] public class BallSpeedPowerUp : BasePowerUp
 {
-    public void Trigger()
+    public override void Trigger(PowerUpSettings settings, PongBall ball)
     {
-        
+        base.Trigger(settings, ball);
+        Debug.Log("ball speed");
     }
 }

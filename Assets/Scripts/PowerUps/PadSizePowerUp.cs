@@ -1,9 +1,11 @@
-using System;using UnityEngine;
+using System;
+using UnityEngine;
 
-[Serializable] public class PadSizePowerUp : Component, IPowerUp
+[Serializable] public class PadSizePowerUp : BasePowerUp
 {
-    public void Trigger()
+    public override void Trigger(PowerUpSettings settings, PongBall ball)
     {
-        
+        base.Trigger(settings, ball);
+        Debug.Log("pad size");
     }
 }
