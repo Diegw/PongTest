@@ -4,11 +4,15 @@ using Random = UnityEngine.Random;
 
 public class PongBall : MonoBehaviour
 {
+    public Vector2 CurrentVelocity => _currentVelocity;
+    public float LastPadCollidePosition => _lastPadCollidePosition;
+    
     [SerializeField] private Vector2 _currentVelocity = Vector2.zero; 
+    [SerializeField] private float _lastPadCollidePosition = 0; 
     private Rigidbody2D _rigidbody = null;
     private BallSettings _settings = null;
     private bool _canMove = true;
-
+    
     private void Awake()
     {
         _settings = SettingsManager.GetSettings<BallSettings>();
@@ -23,12 +27,14 @@ public class PongBall : MonoBehaviour
     {
         RoundManager.OnFinishEvent += OnEndRound;
         RoundManager.OnStartEvent += OnStartRound;
+        BallSpeedPowerUp.OnPowerUpEvent += SetVelocity;
     }
 
     private void OnDisable()
     {
         RoundManager.OnFinishEvent -= OnEndRound;
         RoundManager.OnStartEvent -= OnStartRound;
+        BallSpeedPowerUp.OnPowerUpEvent -= SetVelocity;
     }
     
     private void OnEndRound(RoundManager.SRoundInfo roundInfo)
@@ -77,20 +83,20 @@ public class PongBall : MonoBehaviour
         return Random.value > 0.5f ? 1 : -1;
     }
 
-    private void SetVelocity(Vector2 newVelocity)
+    private void SetVelocity(Vector2 newVelocity, float modifier = 0f)
     {
         if (!_rigidbody)
         {
             return;
         }
 
-        float increment = 0.1f;
-        if (_settings)
+        float increment = modifier;
+        if (_settings && modifier == 0f)
         {
             increment = _settings.SpeedIncrement;
         }
         _currentVelocity = newVelocity + (newVelocity * increment);
-        _rigidbody.velocity = _currentVelocity;
+        _rigidbody.velocity = CurrentVelocity;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -98,6 +104,11 @@ public class PongBall : MonoBehaviour
         IRicochet ricochet = collision.gameObject.GetComponent<IRicochet>();
         if (ricochet != null && ricochet.CanRicochet())
         {
+            PongPlayer player = collision.gameObject.GetComponent<PongPlayer>();
+            if (player)
+            {
+                _lastPadCollidePosition = player.transform.position.x;
+            }
             AudioManager.PlayAudio(1);
             Vector2 normal = collision.GetContact(0).normal;
             Ricochet(normal);
@@ -106,7 +117,7 @@ public class PongBall : MonoBehaviour
 
     private void Ricochet(Vector2 normal)
     {
-        Vector2 reflect = Vector2.Reflect(_currentVelocity, normal);
+        Vector2 reflect = Vector2.Reflect(CurrentVelocity, normal);
         SetVelocity(reflect);
     }
 }
