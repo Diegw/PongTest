@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PowerUpHandler : MonoBehaviour
@@ -9,9 +10,12 @@ public class PowerUpHandler : MonoBehaviour
 
     private void Awake()
     {
-        _ball = FindObjectOfType<PongBall>();
         _settings = SettingsManager.GetSettings<PowerUpSettings>();
         SetCollider();
+        if (_settings)
+        {
+            transform.localScale = new Vector2(_settings.Size, _settings.Size);
+        }
     }
 
     private void SetCollider()
@@ -24,7 +28,6 @@ public class PowerUpHandler : MonoBehaviour
         {
             _boxCollider.enabled = false;
             _boxCollider.isTrigger = true;
-            _boxCollider.size = new Vector2(_settings.ColliderSize, _settings.ColliderSize);
         }
     }
     
@@ -44,7 +47,8 @@ public class PowerUpHandler : MonoBehaviour
     {
         if (gameState == GameManager.EGameState.STARTED)
         {
-            AddPowerUpComponents();
+            _powerUps = GetComponents<BasePowerUp>();
+            StartCoroutine(Movement());
         }
         if (gameState == GameManager.EGameState.FINISHED)
         {
@@ -52,27 +56,42 @@ public class PowerUpHandler : MonoBehaviour
         }
     }
 
+    private IEnumerator Movement()
+    {
+        if (!_settings || _settings.MovementRange == Vector2.zero)
+        {
+            yield break;
+        }
+        float speed = _settings.Speed * Time.deltaTime;
+        float sign = 1;
+        WaitForEndOfFrame frame = new WaitForEndOfFrame();
+        while (this)
+        {
+            if (transform.position.y > _settings.MovementRange.y)
+            {
+                sign = -1;
+            }
+            else if(transform.position.y < _settings.MovementRange.x)
+            {
+                sign = 1;
+            }
+            transform.position += Vector3.up * (speed * sign);
+            yield return frame;
+        }
+    }
+
     private void OnRoundStart()
     {
+        if (!_ball)
+        {
+            _ball = FindObjectOfType<PongBall>();
+        }
         if (_boxCollider)
         {
             _boxCollider.enabled = true;
         }
     }
 
-    private void AddPowerUpComponents()
-    {
-        _powerUps = GetComponents<BasePowerUp>();
-        if (_powerUps == null)
-        {
-            return;
-        }
-        foreach (BasePowerUp powerUp in _powerUps)
-        {
-            powerUp.Trigger(_settings, _ball);
-        }
-    }
-    
     private void OnTriggerEnter2D(Collider2D collider2d)
     {
         PongBall ball = collider2d.GetComponent<PongBall>();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -41,6 +42,7 @@ public class PongPlayer : MonoBehaviour, IRicochet
     {
         GameManager.OnGameStateChangedEvent += CheckToUnsubscribeEvents;
         RoundManager.OnFinishEvent += OnNextRound;
+        PadSizePowerUp.OnPowerUpEvent += IncreaseSize;
         InputReceiver.OnClickInputEvent += OnClickInput;
         InputReceiver.OnMoveInputEvent += OnMoveInputChanged;
     }
@@ -49,6 +51,7 @@ public class PongPlayer : MonoBehaviour, IRicochet
     {
         GameManager.OnGameStateChangedEvent -= CheckToUnsubscribeEvents;
         RoundManager.OnFinishEvent -= OnNextRound;
+        PadSizePowerUp.OnPowerUpEvent -= IncreaseSize;
         InputReceiver.OnClickInputEvent -= OnClickInput;
         InputReceiver.OnMoveInputEvent -= OnMoveInputChanged;
     }
@@ -78,6 +81,17 @@ public class PongPlayer : MonoBehaviour, IRicochet
     private void OnNextRound(RoundManager.SRoundInfo roundInfo)
     {
         _thisTransform.position = new Vector3(_thisTransform.position.x, 0, 0);
+        _thisTransform.localScale = _settings.PlayerScale;
+    }
+
+    private void IncreaseSize(float lastPadPosition, float modifier)
+    {
+        if (Mathf.FloorToInt(lastPadPosition) != Mathf.FloorToInt(_thisTransform.position.x))
+        {
+            return;
+        }
+        float increment = _thisTransform.localScale.y * modifier;
+        _thisTransform.localScale = new Vector2(_thisTransform.localScale.x, _thisTransform.localScale.y + increment);
     }
 
     private void OnClickInput(bool isHolding)
